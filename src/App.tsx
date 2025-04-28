@@ -1,6 +1,6 @@
-import { UIProvider } from 'ui/config'
 import { ApiProvider } from 'api'
-import { Dummy } from './Dummy'
+import { UIProvider } from 'ui/config'
+import { AppNavigator } from '@/navigation/index'
 
 /**
  * API token to authenticate requests
@@ -12,7 +12,7 @@ const App = () => {
   return (
     <ApiProvider url="https://jean-test-api.herokuapp.com/" token={API_TOKEN}>
       <UIProvider>
-        <Dummy />
+        <AppNavigator />
       </UIProvider>
     </ApiProvider>
   )
