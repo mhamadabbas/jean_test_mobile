@@ -1,16 +1,15 @@
 import { Sheet } from '@tamagui/sheet'
 import { FC } from 'react'
-import { useForm } from 'react-hook-form'
-import { Button } from 'tamagui'
+import { FieldError, useForm } from 'react-hook-form'
+import { Button, Text } from 'tamagui'
 import { Filter } from 'types/filter.type'
 import {
-    CustomerSelectController,
-    TextInputController,
-    ToggleGroupController,
+  CustomerSelectController,
+  TextInputController,
+  ToggleGroupController,
 } from '../controllers'
 
 export type InvoiceFilterFormValues = {
-  id?: string
   status?: string
   customerId?: string
 }
@@ -24,7 +23,7 @@ type Props = {
 }
 
 const statusOptions = [
-  { label: 'Unpaid', value: '' },
+  { label: 'Unpaid', value: 'unpaid' },
   { label: 'Paid', value: 'paid' },
   { label: 'Finalized', value: 'finalized' },
 ]
@@ -35,16 +34,34 @@ const InvoiceFilterSheet: FC<Props> = ({
   filters = [],
   onFilterChange,
 }) => {
-  const { control, handleSubmit } = useForm<InvoiceFilterFormValues>({})
+  const hasPaidFilter = filters.find((filter) => filter.field === 'paid')
+  const hasFinalizedFilter = filters.find((filter) => filter.field === 'finalized')
+  const defaultCustomerId = filters.find((filter) => filter.field === 'customer_id')?.value as string | undefined;
+
+  const defaultValues: InvoiceFilterFormValues = {
+    customerId: defaultCustomerId,
+    status: hasPaidFilter ? 'paid' : hasFinalizedFilter ? 'finalized' : undefined,
+  }
+
+  const { control, handleSubmit } = useForm<InvoiceFilterFormValues>({
+    defaultValues,
+    resolver: async (data) => {
+      const errors: Partial<Record<keyof InvoiceFilterFormValues, FieldError>> = {}
+      if (data.customerId && isNaN(Number(data.customerId)))
+        errors.customerId = { message: 'Customer ID must be a number', type: 'manual' }
+      return { errors, values: data }
+    },
+  })
 
   const onSubmit = (data: InvoiceFilterFormValues) => {
-    const newFilters = []
-    if (data.id) {
-      newFilters.push({ field: 'id', operator: 'eq', value: data.id.toString() })
+    const newFilters = [];
+
+    if (data.status === 'finalized') {
+      newFilters.push({ field: 'finalized', operator: 'eq', value: true })
     }
 
-    if (data.status && ['paid', 'finalized'].includes(data.status)) {
-      newFilters.push({ field: 'status', operator: 'eq', value: data.status })
+    if (data.status === 'paid') {
+      newFilters.push({ field: 'paid', operator: 'eq', value: 'true' })
     }
 
     if (data.customerId) {
@@ -59,30 +76,31 @@ const InvoiceFilterSheet: FC<Props> = ({
     setIsOpen(false)
   }
 
+  const handleClear = () => {
+    onFilterChange([])
+    setIsOpen(false)
+  }
+
   return (
     <Sheet
       modal
       open={isOpen}
-      zIndex={100_000}
-      snapPoints={[300]}
+      snapPoints={[350]}
       dismissOnSnapToBottom
       snapPointsMode='constant'
       onOpenChange={setIsOpen}
     >
       <Sheet.Overlay animation="lazy" backgroundColor="$shadow6" />
       <Sheet.Frame p="$4" alignItems="center" gap="$4">
-        <TextInputController
-          name="id"
-          control={control}
-          placeholder="Invoice ID"
-        />
+        <Text fontSize={20} fontWeight="bold">Filter invoices</Text>
         <CustomerSelectController name="customerId" control={control} />
         <ToggleGroupController
           name="status"
           control={control}
           options={statusOptions}
         />
-        <Button onPress={handleSubmit(onSubmit)}>Validate</Button>
+        <Button width="100%" onPress={handleSubmit(onSubmit)}>Validate</Button>
+        <Button width="100%" variant="outlined" onPress={handleClear}>Clear</Button>
       </Sheet.Frame>
     </Sheet>
   )

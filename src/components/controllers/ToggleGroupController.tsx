@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { useController, UseControllerProps } from 'react-hook-form'
-import { Text, ToggleGroup } from 'tamagui'
+import { Text, ToggleGroup, View } from 'tamagui'
 
 type Props = {
     options: {
@@ -13,10 +13,10 @@ const ToggleGroupController = ({ options, name, control }: Props) => {
     const { field, fieldState } = useController({ name, control })
 
     return (
-        <Fragment>
+        <View width="100%" gap={4}>
             <ToggleGroup
                 width="99%"
-                type="multiple"
+                type="single"
                 value={field.value}
                 orientation="horizontal"
                 onValueChange={field.onChange}
@@ -35,7 +35,7 @@ const ToggleGroupController = ({ options, name, control }: Props) => {
                 ))}
             </ToggleGroup>
             {fieldState.error && <Text color="$red10">{fieldState.error.message}</Text>}
-        </Fragment>
+        </View>
     )
 }
 

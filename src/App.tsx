@@ -12,7 +12,7 @@ const API_TOKEN = ''
 
 const App = () => {
   return (
-    <ApiProvider url="https://jean-test-api.herokuapp.com/" token={API_TOKEN}>
+    <ApiProvider url="https://jean-test-api.herokuapp.com" token={API_TOKEN}>
       <QueryClientProvider client={queryClient}>
         <UIProvider>
           <AppNavigator />

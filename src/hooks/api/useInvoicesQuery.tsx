@@ -7,14 +7,14 @@ import { Filter } from "@/types/index";
 export const useInvoicesQuery = (filter: Filter[]) => {
     const apiClient = useApi();
 
-    const { data: invoices, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+    const { data: invoices, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
         initialPageParam: 1,
         queryKey: [QUERY_KEYS.INVOICES, { filter }],
-        queryFn: ({ pageParam }) => apiClient.getInvoices({ page: pageParam, per_page: 2, filter }),
+        queryFn: ({ pageParam }) => apiClient.getInvoices({ page: pageParam, per_page: 5, filter }),
 
         select: (data) => data.pages.flatMap((page) => page.data.invoices),
         getNextPageParam: (lastPage) => lastPage.data.pagination.page + 1,
     })
 
-    return { invoices, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage };
+    return { invoices, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch };
 }

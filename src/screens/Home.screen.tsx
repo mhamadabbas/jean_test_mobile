@@ -18,7 +18,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     setOptions({
-      headerRight: () => <FilterIcon onPress={handleToggle} />,
+      headerRight: () => <FilterIcon size={20} onPress={handleToggle} />,
     })
   }, [handleToggle, setOptions])
 
