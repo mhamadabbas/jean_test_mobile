@@ -2,7 +2,7 @@ import { Paths } from "@/api/generated/client"
 import { ErrorBoundary } from "@/components/templates"
 import { useInvoicesQuery } from "@/hooks/api"
 import { RootStackParamList } from "@/navigation/App.navigator"
-import { Filter, InvoiceStatus } from "@/types/index"
+import { Filter, Invoice, InvoiceStatus } from "@/types/index"
 import { NavigationProp, useNavigation } from "@react-navigation/native"
 import { FC, memo, useCallback } from "react"
 import { ActivityIndicator, FlatList, ListRenderItem, StyleSheet } from "react-native"
@@ -71,7 +71,7 @@ const InvoicesList: FC<Props> = ({ filters }) => {
         }
     }
 
-    const renderItem = useCallback<ListRenderItem<Paths.GetInvoices.Responses.$200['invoices'][number]>>(({ item }) => {
+    const renderItem = useCallback<ListRenderItem<Invoice>>(({ item }) => {
         const status = getInvoiceStatus(item);
         const totalAmount = formatPrice(item.total);
         const customerName = `${item.customer?.first_name} ${item.customer?.last_name}`;

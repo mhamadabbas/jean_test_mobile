@@ -30,8 +30,6 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
       withServer: { url },
       axiosConfigDefaults: {
         paramsSerializer: (params) => {
-          console.log(params);
-          
           const finalParams: Record<string, string> = {};
 
           for (const key in params) {

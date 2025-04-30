@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { FC } from 'react'
 import { useController, UseControllerProps } from 'react-hook-form'
 import { Text, ToggleGroup, View } from 'tamagui'
 
@@ -9,7 +9,7 @@ type Props = {
     }[]
 } & UseControllerProps
 
-const ToggleGroupController = ({ options, name, control }: Props) => {
+const ToggleGroupController: FC<Props> = ({ options, name, control }) => {
     const { field, fieldState } = useController({ name, control })
 
     return (

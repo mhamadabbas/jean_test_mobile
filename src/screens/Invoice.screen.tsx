@@ -5,8 +5,9 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, ListItem, Text, YGroup } from 'tamagui';
-import { formatDate } from 'utils/data';
+import { formatDate } from 'utils/date';
 import { getInvoiceStatus } from 'utils/invoice';
+import { formatPrice } from 'utils/number';
 
 const InvoiceScreen = () => {
   const { bottom } = useSafeAreaInsets();
@@ -28,6 +29,7 @@ const InvoiceScreen = () => {
         <ListItem title="Customer ID" subTitle={invoice.customer_id?.toString()} />
         {!!invoice.date && <ListItem title="Billing date" subTitle={formatDate(invoice.date)} />}
         {!!invoice.deadline && <ListItem title="Due date" subTitle={formatDate(invoice.deadline)} />}
+        {!!invoice.total && <ListItem title="Amount" subTitle={formatPrice(invoice.total)} />}
       </YGroup>
       <Button width="100%" backgroundColor="$red10" color="white">Delete</Button>
       <Button width="100%" backgroundColor="$blue10" color="white">Update</Button>

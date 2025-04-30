@@ -1,31 +1,55 @@
-import { Fragment, useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useNavigation } from '@react-navigation/native'
-import { Filter as FilterIcon } from '@tamagui/lucide-icons'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { PlusSquare } from '@tamagui/lucide-icons'
 
 import InvoicesList from '@/components/lists/InvoicesList'
-import { InvoiceFilterSheet } from '@/components/sheets'
 import { Filter } from '@/types/index'
+import { Button, Text, ToggleGroup, View } from 'tamagui'
+import { CustomerSelect } from '@/components/inputs'
+import { RootStackParamList } from '@/navigation/App.navigator'
 
 const HomeScreen = () => {
-  const { setOptions } = useNavigation()
-  const [isOpen, setIsOpen] = useState(false)
-  const [filters, setFilters] = useState<Filter[]>([])
+  const { setOptions, navigate } = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const handleToggle = useCallback(() => {
-    setIsOpen(!isOpen)
-  }, [isOpen])
+  const [isOpen, setIsOpen] = useState(false);
+  const [customerId, setCustomerId] = useState<string>('');
+  const [currentTab, setCurrentTab] = useState<'draft' | 'finalized'>('draft');
+
+  const handleChangeTab = useCallback((tab: 'draft' | 'finalized') => {
+    setCurrentTab(tab);
+  }, []);
+
+  const computedFilters = useMemo(() => {
+    const result: Filter[] = [
+      { field: 'finalized', operator: 'eq', value: currentTab !== 'draft' }
+    ];
+
+    if (customerId) result.push({ field: 'customer_id', operator: 'eq', value: customerId });
+
+    return result;
+  }, [customerId, currentTab]);
 
   useEffect(() => {
     setOptions({
-      headerRight: () => <FilterIcon size={20} onPress={handleToggle} />,
+      headerRight: () => <PlusSquare size={20} onPress={() => navigate('NewInvoice')} />,
     })
-  }, [handleToggle, setOptions])
+  }, [setOptions, navigate])
 
   return (
     <Fragment>
-      <InvoicesList filters={filters} />
-      <InvoiceFilterSheet isOpen={isOpen} setIsOpen={setIsOpen} filters={filters} onFilterChange={setFilters} />
+      <ToggleGroup disableDeactivation width="100%" type="single" value={currentTab} onValueChange={handleChangeTab}>
+        <ToggleGroup.Item width="50%" value="finalized">
+          <Text>Finalized</Text>
+        </ToggleGroup.Item>
+        <ToggleGroup.Item width="50%" value="draft">
+          <Text>Draft</Text>
+        </ToggleGroup.Item>
+      </ToggleGroup>
+      <View width="100%" paddingHorizontal={16} paddingTop={16}>
+        <CustomerSelect value={customerId} onChange={setCustomerId} />
+      </View>
+      <InvoicesList filters={computedFilters} />
     </Fragment>
   )
 }

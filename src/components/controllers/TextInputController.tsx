@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { FC } from "react";
 import { useController, UseControllerProps } from "react-hook-form";
 import { Input, Text, View } from "tamagui";
 
@@ -6,7 +6,7 @@ type Props = UseControllerProps & {
     placeholder?: string;
 };
 
-const TextInputController = ({ name, control, placeholder }: Props) => {
+const TextInputController: FC<Props> = ({ name, control, placeholder }) => {
     const { field, fieldState } = useController({ name, control });
 
     return (
