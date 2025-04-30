@@ -2,14 +2,17 @@ import { DatePickerController } from '@/components/controllers';
 import CustomerSelectController from '@/components/controllers/CustomerSelectController';
 import { InvoiceLineCard } from '@/components/lists/InvoiceLinesList';
 import AddProductSheet from '@/components/sheets/AddProductSheet';
+import { useCreateInvoiceMutation } from '@/hooks/api';
+import { RootStackParamList } from '@/navigation/App.navigator';
 import { Product } from '@/types/product.type';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { Fragment, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text } from 'tamagui';
 
-type NewInvoiceFormData = {
+export type NewInvoiceFormData = {
   customerId: string;
   date: Date;
   deadline: Date;
@@ -20,7 +23,10 @@ type NewInvoiceFormData = {
 }
 
 const InvoiceScreen = () => {
-  const { bottom, top } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
+  const { createInvoice, isPending } = useCreateInvoiceMutation();
+  const { reset } = useNavigation<NavigationProp<RootStackParamList>>();
+
   const { control, handleSubmit, setValue, watch, formState: { errors }, trigger } = useForm<NewInvoiceFormData>({
     mode: 'onChange',
     defaultValues: {
@@ -57,8 +63,18 @@ const InvoiceScreen = () => {
     trigger('invoiceLines');
   }
 
-  const onSubmit = (data: NewInvoiceFormData) => {
-    console.log(data);
+  const onSubmit = async (data: NewInvoiceFormData) => {
+    try {
+      const { data: invoice } = await createInvoice(data);
+      reset({
+        routes: [
+          { name: 'Home' },
+          { name: 'Invoice', params: { id: invoice.id } }
+        ]
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -87,7 +103,7 @@ const InvoiceScreen = () => {
           Add product
         </Button>
         {!!errors.invoiceLines && <Text alignSelf="flex-start" color="$red10">{errors.invoiceLines.message}</Text>}
-        <Button width="100%" backgroundColor="$blue10" color="white" marginTop="auto" onPress={handleSubmit(onSubmit)}>Save</Button>
+        <Button width="100%" backgroundColor="$blue10" color="white" marginTop="auto" onPress={handleSubmit(onSubmit)} disabled={isPending}>Save</Button>
       </ScrollView>
       <AddProductSheet
         onSubmit={handleAddProduct}
