@@ -1,7 +1,6 @@
-// src/navigation/NavigationContainer.tsx
+import { HomeScreen, InvoiceScreen } from '@/screens/index';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { HomeScreen, InvoiceScreen } from '@/screens/index'
 
 const Stack = createNativeStackNavigator();
 

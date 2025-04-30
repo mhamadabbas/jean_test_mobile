@@ -4,8 +4,13 @@
     "baseUrl": "./src",
     "paths": {
       "@/ui/*": ["ui/*"],
+      "@/api/*": ["api/*"],
+      "@/hooks/*": ["hooks/*"],
+      "@/types/*": ["types/*"],
       "@/screens/*": ["screens/*"],
+      "@/constants/*": ["constants/*"],
+      "@/components/*": ["components/*"],
       "@/navigation/*": ["navigation/*"],
     }
-  }
+  },
 }

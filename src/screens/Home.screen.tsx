@@ -1,11 +1,33 @@
-import { View, Text } from 'react-native';
+import { Fragment, useCallback, useEffect, useState } from 'react'
+
+import { useNavigation } from '@react-navigation/native'
+import { Filter as FilterIcon } from '@tamagui/lucide-icons'
+
+import InvoicesList from '@/components/lists/InvoicesList'
+import { InvoiceFilterSheet } from '@/components/sheets'
+import { Filter } from '@/types/index'
 
 const HomeScreen = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>home</Text>
-    </View>
-  );
-};
+  const { setOptions } = useNavigation()
+  const [isOpen, setIsOpen] = useState(false)
+  const [filters, setFilters] = useState<Filter[]>([])
 
-export default HomeScreen;
+  const handleToggle = useCallback(() => {
+    setIsOpen(!isOpen)
+  }, [isOpen])
+
+  useEffect(() => {
+    setOptions({
+      headerRight: () => <FilterIcon onPress={handleToggle} />,
+    })
+  }, [handleToggle, setOptions])
+
+  return (
+    <Fragment>
+      <InvoicesList filters={filters} />
+      <InvoiceFilterSheet isOpen={isOpen} setIsOpen={setIsOpen} filters={filters} onFilterChange={setFilters} />
+    </Fragment>
+  )
+}
+
+export default HomeScreen

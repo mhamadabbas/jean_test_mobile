@@ -1,6 +1,8 @@
 import { ApiProvider } from 'api'
 import { UIProvider } from 'ui/config'
 import { AppNavigator } from '@/navigation/index'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from 'config/queryClient'
 
 /**
  * API token to authenticate requests
@@ -11,9 +13,11 @@ const API_TOKEN = ''
 const App = () => {
   return (
     <ApiProvider url="https://jean-test-api.herokuapp.com/" token={API_TOKEN}>
-      <UIProvider>
-        <AppNavigator />
-      </UIProvider>
+      <QueryClientProvider client={queryClient}>
+        <UIProvider>
+          <AppNavigator />
+        </UIProvider>
+      </QueryClientProvider>
     </ApiProvider>
   )
 }

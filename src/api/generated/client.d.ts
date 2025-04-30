@@ -377,7 +377,7 @@ declare namespace Paths {
             "X-SESSION"?: Parameters.XSESSION;
         }
         namespace Parameters {
-            export type Filter = string;
+            export type Filter = Components.Schemas.Filter[];
             export type Page = number;
             export type PerPage = number;
             export type XSESSION = string;
