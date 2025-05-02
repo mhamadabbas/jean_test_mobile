@@ -3,18 +3,16 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { PlusSquare } from '@tamagui/lucide-icons'
 
-import InvoicesList from '@/components/lists/InvoicesList'
-import { Filter } from '@/types/index'
-import { Button, Text, ToggleGroup, View } from 'tamagui'
 import { CustomerSelect } from '@/components/inputs'
+import InvoicesList from '@/components/lists/InvoicesList'
 import { RootStackParamList } from '@/navigation/App.navigator'
+import { Filter } from '@/types/index'
+import { Text, ToggleGroup, View } from 'tamagui'
 
 const HomeScreen = () => {
-  const { setOptions, navigate } = useNavigation<NavigationProp<RootStackParamList>>();
-
-  const [isOpen, setIsOpen] = useState(false);
   const [customerId, setCustomerId] = useState<string>('');
-  const [currentTab, setCurrentTab] = useState<'draft' | 'finalized'>('draft');
+  const [currentTab, setCurrentTab] = useState<'draft' | 'finalized'>('finalized');
+  const { setOptions, navigate } = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleChangeTab = useCallback((tab: 'draft' | 'finalized') => {
     setCurrentTab(tab);
@@ -46,7 +44,7 @@ const HomeScreen = () => {
           <Text>Draft</Text>
         </ToggleGroup.Item>
       </ToggleGroup>
-      <View width="100%" paddingHorizontal={16} paddingTop={16}>
+      <View width="100%" padding={16}>
         <CustomerSelect value={customerId} onChange={setCustomerId} />
       </View>
       <InvoicesList filters={computedFilters} />

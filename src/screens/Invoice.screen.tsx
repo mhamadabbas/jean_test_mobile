@@ -20,8 +20,6 @@ const InvoiceScreen = () => {
   const { deleteInvoice, isPending: isDeleting } = useDeleteInvoiceMutation(params?.id);
   const { invoice, isLoading, isError, refetch } = useInvoiceByIdQuery(params?.id?.toString());
 
-  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-
   const handleUpdatePress = () => {
     navigate('NewInvoice', { id: params?.id });
   }
@@ -88,13 +86,13 @@ const InvoiceScreen = () => {
           width="100%"
           color="white"
           disabled={isUpdating}
-          backgroundColor="$blue10"
+          backgroundColor="$green10"
           title="Mark invoice as paid"
           onConfirm={handleMarkPaidConfirm}
           description="Are you sure you want to mark this invoice as paid? This action cannot be undone."
         />}
-        <Button width="100%" backgroundColor="$blue10" color="white" onPress={handleUpdatePress}>Update</Button>
-        <ButtonWithConfirmSheet
+        {!invoice.finalized && <Button width="100%" backgroundColor="$blue10" color="white" onPress={handleUpdatePress}>Update</Button>}
+        {!invoice.finalized && <ButtonWithConfirmSheet
           width="100%"
           color="white"
           disabled={isDeleting}
@@ -102,7 +100,7 @@ const InvoiceScreen = () => {
           backgroundColor="$red10"
           onConfirm={handleDeleteConfirm}
           description="Are you sure you want to delete this invoice? This action cannot be undone."
-        />
+        />}
       </ScrollView>
     </Fragment>
   );

@@ -1,65 +1,16 @@
-import { Paths } from "@/api/generated/client"
-import { ErrorBoundary } from "@/components/templates"
 import { useInvoicesQuery } from "@/hooks/api"
-import { RootStackParamList } from "@/navigation/App.navigator"
-import { Filter, Invoice, InvoiceStatus } from "@/types/index"
-import { NavigationProp, useNavigation } from "@react-navigation/native"
-import { FC, memo, useCallback } from "react"
+import { Filter, Invoice } from "@/types/index"
+import { FC, useCallback } from "react"
 import { ActivityIndicator, FlatList, ListRenderItem, StyleSheet } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { Card, Text, XStack, YStack } from "tamagui"
-import { ChevronRight } from "@tamagui/lucide-icons"
 import { getInvoiceStatus } from "utils/invoice"
 import { formatPrice } from "utils/number"
-
-type InvoiceCardProps = {
-    status: InvoiceStatus
-    invoiceId: number
-    customerName: string
-    totalAmount: string
-}
+import { InvoiceCard } from "../cards"
+import { ErrorBoundary } from "../templates"
 
 type Props = {
     filters: Filter[]
 }
-
-const InvoiceCard: FC<InvoiceCardProps> = memo(({ status, invoiceId, customerName, totalAmount }) => {
-    const { navigate } = useNavigation<NavigationProp<RootStackParamList, 'Invoice'>>();
-
-    const handlePress = () => navigate('Invoice', { id: invoiceId });
-
-    return <Card elevate onPress={handlePress} pressStyle={{ scale: 0.98 }} borderColor="$gray8Light" borderWidth={1}>
-        <Card.Header flexDirection="row" alignItems="center" justifyContent="space-between">
-            <YStack>
-                <XStack width="95%" justifyContent="space-between">
-                    <Text>Invoice ID</Text>
-                    <Text fontWeight="bold">{invoiceId}</Text>
-                </XStack>
-                <XStack width="95%" justifyContent="space-between">
-                    <Text>Customer</Text>
-                    <Text fontWeight="bold">{customerName}</Text>
-                </XStack>
-                <XStack width="95%" justifyContent="space-between">
-                    <Text>Status</Text>
-                    <Text fontWeight="bold">{status}</Text>
-                </XStack>
-            </YStack>
-            <ChevronRight />
-        </Card.Header>
-        <Card.Footer
-            padding={16}
-            alignItems="center"
-            borderBottomLeftRadius={8}
-            borderBottomRightRadius={8}
-            backgroundColor="$gray4Light"
-            justifyContent="space-between"
-        >
-            <Text>Total amount</Text>
-            <Text fontWeight="bold">{totalAmount}</Text>
-        </Card.Footer>
-    </Card>
-})
-InvoiceCard.displayName = 'InvoiceCard'
 
 const InvoicesList: FC<Props> = ({ filters }) => {
     const { bottom } = useSafeAreaInsets()

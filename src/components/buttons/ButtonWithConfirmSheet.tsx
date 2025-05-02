@@ -1,4 +1,4 @@
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, memo, useState } from "react";
 import { Button, ButtonProps } from "tamagui";
 import { ConfirmSheet } from "../sheets";
 
@@ -8,7 +8,7 @@ type Props = {
     description: string;
 } & ButtonProps;
 
-export const ButtonWithConfirmSheet: FC<Props> = ({ onConfirm, title, description, ...props }) => {
+export const ButtonWithConfirmSheet: FC<Props> = memo(({ onConfirm, title, description, ...props }) => {
     const [isConfirmSheetOpen, setIsConfirmSheetOpen] = useState(false);
 
     const handleButtonPress = () => {
@@ -27,14 +27,16 @@ export const ButtonWithConfirmSheet: FC<Props> = ({ onConfirm, title, descriptio
     return (
         <Fragment>
             <Button onPress={handleButtonPress} {...props}>{title}</Button>
-            <ConfirmSheet
+            {isConfirmSheetOpen && <ConfirmSheet
                 title={title}
                 description={description}
                 isOpen={isConfirmSheetOpen}
                 onCancel={onCancelConfirmSheet}
                 setIsOpen={setIsConfirmSheetOpen}
                 onConfirm={onConfirmConfirmSheet}
-            />
+            />}
         </Fragment>
     )
-}
+});
+
+ButtonWithConfirmSheet.displayName = 'ButtonWithConfirmSheet';

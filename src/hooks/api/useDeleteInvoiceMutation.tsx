@@ -1,9 +1,6 @@
-import { Paths } from "@/api/generated/client";
 import { useApi } from "@/api/index";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/index";
-import { NewInvoiceFormData } from "@/screens/NewInvoice.screen";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { formatDateForServer } from "utils/date";
 
 export const useDeleteInvoiceMutation = (id: number) => {
     const apiClient = useApi();

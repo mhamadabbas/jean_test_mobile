@@ -44,7 +44,10 @@ export const useUpdateInvoiceMutation = () => {
     const { mutateAsync, isPending } = useMutation({
         mutationKey: [MUTATION_KEYS.UPDATE_INVOICE],
         mutationFn: (data: { invoice: Invoice, newInvoice: Partial<NewInvoiceFormData> }) => handleUpdateInvoice(data.invoice, data.newInvoice),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INVOICES] }),
+        onSuccess: () => {
+            queryClient.refetchQueries({ queryKey: [QUERY_KEYS.INVOICES] });
+            queryClient.refetchQueries({ queryKey: [QUERY_KEYS.INVOICE_BY_ID] });
+        },
         onError: (error) => console.log(error),
     })
 

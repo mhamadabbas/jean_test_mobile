@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 export type RootStackParamList = {
   Home: undefined;
   Invoice: { id: number };
-  NewInvoice: { id?: number };
+  NewInvoice: { id?: number } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
