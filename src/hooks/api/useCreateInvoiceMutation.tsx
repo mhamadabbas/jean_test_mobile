@@ -29,21 +29,14 @@ export const useCreateInvoiceMutation = () => {
             }
         }
 
-        console.log(JSON.stringify(body, null, 2));
-        
-
         return apiClient.postInvoices({}, body)
     }
 
     const { mutateAsync, isPending } = useMutation({
         mutationFn: handlePostInvoice,
         mutationKey: [MUTATION_KEYS.CREATE_INVOICE],
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INVOICES] })
-        },
-        onError: (error) => {
-            console.log(error);
-        }
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INVOICES] }),
+        onError: (error) => console.log(error),
     })
 
     return { createInvoice: mutateAsync, isPending }

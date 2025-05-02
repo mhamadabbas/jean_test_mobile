@@ -1,20 +1,14 @@
-import { InvoiceLine } from "@/types/index"
-import { ChevronRight, Trash } from "@tamagui/lucide-icons"
-import { FC, memo, useCallback } from "react"
-import { FlatList, ListRenderItem, StyleSheet } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { Button, Card, Text, XStack, YStack } from "tamagui"
-import { formatPrice } from "utils/number"
+import { FC, memo } from "react";
+import { InvoiceLine } from "@/types/index";
+import { Card, XStack, YStack, Text, Button } from "@/ui/index";
+import { formatPrice } from "utils/number";
+import { Trash } from "@tamagui/lucide-icons";
 
 type InvoiceLineCardProps = {
     productName: string;
     quantity: number;
     price: number;
     onDelete?: () => void;
-}
-
-type Props = {
-    invoiceLines: InvoiceLine[]
 }
 
 export const InvoiceLineCard: FC<InvoiceLineCardProps> = memo(({ productName, quantity, price, onDelete }) => {
@@ -51,32 +45,5 @@ export const InvoiceLineCard: FC<InvoiceLineCardProps> = memo(({ productName, qu
         </Card.Footer>
     </Card>
 });
+
 InvoiceLineCard.displayName = 'InvoiceLineCard'
-
-const InvoiceLinesList: FC<Props> = ({ invoiceLines }) => {
-    const { bottom } = useSafeAreaInsets()
-
-
-    const renderItem = useCallback<ListRenderItem<InvoiceLine>>(({ item }) => {
-        return <InvoiceLineCard quantity={item.quantity} productName={item.product.label} price={+item.product.unit_price} />
-    }, [])
-
-    return <FlatList
-        data={invoiceLines}
-        renderItem={renderItem}
-        style={[styles.container]}
-        keyExtractor={(item) => item.product.id.toString()}
-        contentContainerStyle={[styles.contentContainer, { paddingBottom: bottom }]}
-    />
-}
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    contentContainer: {
-        gap: 12,
-    }
-})
-
-export default InvoiceLinesList;

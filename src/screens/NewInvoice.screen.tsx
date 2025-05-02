@@ -1,18 +1,16 @@
-import { DatePickerController } from '@/components/controllers';
-import CustomerSelectController from '@/components/controllers/CustomerSelectController';
-import { InvoiceLineCard } from '@/components/lists/InvoiceLinesList';
-import AddProductSheet from '@/components/sheets/AddProductSheet';
-import { useCreateInvoiceMutation } from '@/hooks/api';
+import InvoiceForm from '@/components/templates/InvoiceForm';
+import { useCreateInvoiceMutation, useInvoiceByIdQuery } from '@/hooks/api';
+import { useUpdateInvoiceMutation } from '@/hooks/api/useUpdateInvoiceMutation';
 import { RootStackParamList } from '@/navigation/App.navigator';
+import { Invoice } from '@/types/invoice.type';
 import { Product } from '@/types/product.type';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { Fragment, useState } from 'react';
-import { FieldErrors, useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button, Text } from 'tamagui';
+import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useCallback, useMemo } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 export type NewInvoiceFormData = {
+  finalized?: boolean;
+  paid?: boolean;
   customerId: string;
   date: Date;
   deadline: Date;
@@ -23,95 +21,55 @@ export type NewInvoiceFormData = {
 }
 
 const InvoiceScreen = () => {
-  const { bottom } = useSafeAreaInsets();
-  const { createInvoice, isPending } = useCreateInvoiceMutation();
   const { reset } = useNavigation<NavigationProp<RootStackParamList>>();
+  const { params } = useRoute<RouteProp<RootStackParamList, 'NewInvoice'>>();
+  const { createInvoice, isPending: isCreating } = useCreateInvoiceMutation();
+  const { updateInvoice, isPending: isUpdating } = useUpdateInvoiceMutation();
 
-  const { control, handleSubmit, setValue, watch, formState: { errors }, trigger } = useForm<NewInvoiceFormData>({
-    mode: 'onChange',
-    defaultValues: {
-      date: new Date(),
-      deadline: new Date(new Date().setDate(new Date().getDate() + 30)),
-      invoiceLines: [],
-    },
-    resolver: async (data: NewInvoiceFormData) => {
-      const errors: FieldErrors<NewInvoiceFormData> = {};
-      if (!data.customerId) errors.customerId = { message: 'Customer is required', type: 'required' };
-      if (data.invoiceLines.length === 0) errors.invoiceLines = { message: 'At least one invoice line is required', type: 'required' };
-      return {
-        values: data,
-        errors,
-      };
-    },
-  });
-  const [isAddProductSheetOpen, setIsAddProductSheetOpen] = useState(false);
+  const { invoice, isLoading } = useInvoiceByIdQuery(params?.id?.toString());
 
-  const date = watch('date');
-  const invoiceLines = watch('invoiceLines');
-
-  const productIdToHide = invoiceLines.map((invoiceLine) => invoiceLine.product.id.toString());
-  const minDeadlineDate = date ? new Date(new Date(date).setDate(new Date(date).getDate() + 30)) : undefined;
-
-  const handleAddProduct = (product: Product, quantity: number) => {
-    setValue('invoiceLines', [...invoiceLines, { product, quantity }]);
-    trigger('invoiceLines');
-    setIsAddProductSheetOpen(false);
-  }
-
-  const handleDeleteProduct = (productId: string) => {
-    setValue('invoiceLines', invoiceLines.filter((invoiceLine) => invoiceLine.product.id.toString() !== productId));
-    trigger('invoiceLines');
-  }
-
-  const onSubmit = async (data: NewInvoiceFormData) => {
+  const onSubmit = useCallback(async (data: NewInvoiceFormData) => {
     try {
-      const { data: invoice } = await createInvoice(data);
+      let result: Invoice;
+      if (invoice) {
+        result = (await updateInvoice({ invoice, newInvoice: data }))?.data;
+      } else {
+        result = (await createInvoice(data))?.data;
+      }
       reset({
         routes: [
           { name: 'Home' },
-          { name: 'Invoice', params: { id: invoice.id } }
+          { name: 'Invoice', params: { id: result.id } }
         ]
       });
     } catch (error) {
       console.log(error);
     }
-  }
+  }, [createInvoice, reset, invoice, updateInvoice]);
+
+  const defaultValues = useMemo(() => {
+    if (isLoading) return undefined;
+    if (invoice) return {
+      customerId: invoice.customer_id?.toString() ?? '',
+      date: invoice.date ? new Date(invoice.date) : new Date(),
+      deadline: invoice.deadline ? new Date(invoice.deadline) : new Date(new Date().setDate(new Date().getDate() + 30)),
+      invoiceLines: invoice.invoice_lines.map((invoiceLine) => ({
+        product: invoiceLine.product,
+        quantity: invoiceLine.quantity,
+      })),
+    };
+    return undefined;
+  }, [invoice, isLoading]);
+
+  if (isLoading) return <ActivityIndicator />;
 
   return (
-    <Fragment>
-      <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingBottom: bottom }]}>
-        <Text alignSelf="flex-start" fontSize={16} fontWeight="bold">Customer</Text>
-        <CustomerSelectController name="customerId" control={control} />
-        <Text alignSelf="flex-start" fontSize={16} fontWeight="bold">Date</Text>
-        <DatePickerController name="date" control={control} minDate={new Date()} />
-        <Text alignSelf="flex-start" fontSize={16} fontWeight="bold">Deadline</Text>
-        <DatePickerController name="deadline" control={control} minDate={minDeadlineDate} />
-        <Text alignSelf="flex-start" fontSize={16} fontWeight="bold">Invoice lines</Text>
-        {invoiceLines.map((invoiceLine) => (
-          <InvoiceLineCard
-            key={invoiceLine.product.id}
-            quantity={invoiceLine.quantity}
-            productName={invoiceLine.product.label}
-            price={+invoiceLine.product.unit_price}
-            onDelete={() => handleDeleteProduct(invoiceLine.product.id.toString())}
-          />
-        ))}
-        <Button width="100%"
-          backgroundColor="$gray6"
-          onPress={() => setIsAddProductSheetOpen(true)}
-          borderColor={errors.invoiceLines ? '$red10' : '$borderColor'}>
-          Add product
-        </Button>
-        {!!errors.invoiceLines && <Text alignSelf="flex-start" color="$red10">{errors.invoiceLines.message}</Text>}
-        <Button width="100%" backgroundColor="$blue10" color="white" marginTop="auto" onPress={handleSubmit(onSubmit)} disabled={isPending}>Save</Button>
-      </ScrollView>
-      <AddProductSheet
-        onSubmit={handleAddProduct}
-        isOpen={isAddProductSheetOpen}
-        productIdToHide={productIdToHide}
-        setIsOpen={setIsAddProductSheetOpen}
-      />
-    </Fragment>
+    <InvoiceForm
+      onSubmit={onSubmit}
+      defaultValues={defaultValues}
+      submitLabel={invoice ? "Save" : "Create"}
+      submitDisabled={isCreating || isUpdating}
+    />
   );
 };
 

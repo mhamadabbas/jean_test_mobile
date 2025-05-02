@@ -1,3 +1,9 @@
+/**
+ * Format a price to be displayed in the UI
+ *
+ * @param price - The price to format
+ * @returns The formatted price
+ */
 export const formatPrice = (price?: number | string | null) => {
   if (!price) return '0'
 
