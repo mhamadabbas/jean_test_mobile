@@ -1,13 +1,12 @@
 import { ButtonWithConfirmSheet } from '@/components/buttons/ButtonWithConfirmSheet';
 import { InvoiceDetailsCard, InvoiceLineCard } from '@/components/cards';
-import { ConfirmSheet } from '@/components/sheets';
 import { ErrorBoundary } from '@/components/templates';
 import { useDeleteInvoiceMutation } from '@/hooks/api/useDeleteInvoiceMutation';
 import { useInvoiceByIdQuery } from '@/hooks/api/useInvoiceByIdQuery';
 import { useUpdateInvoiceMutation } from '@/hooks/api/useUpdateInvoiceMutation';
 import { RootStackParamList } from "@/navigation/App.navigator";
 import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text } from 'tamagui';
